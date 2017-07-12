@@ -1,0 +1,21 @@
+environment:
+  matrix:
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      PROJECT: Game
+      PROJECT_DETAILS: "Game Runner"
+
+install:
+  - set QTDIR=C:\Qt\5.9\mingw53_32
+  - set PATH=%PATH%;%QTDIR%\bin;C:\MinGW\bin
+  - cd src
+  - mkdir artifacts
+  - mv Dependencies/win32/* artifacts/
+  - mv Content artifacts/Content
+  - touch "artifacts/RPG Paper Maker.exe"
+  - cd artifacts
+  - dir
+  - cd ..
+  - 7z a %PROJECT%.zip artifacts/*
+  - 7z l %PROJECT%.zip
+
+build: false
