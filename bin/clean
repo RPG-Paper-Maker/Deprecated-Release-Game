@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Enter the build directory
+cd build
+
+# Clean all files
+rm -R *

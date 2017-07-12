@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Set validate enabled
+PARAM="validate"
+
+# Disable validate if argument not provided
+[ -z "$1" ] && PARAM=""
+
+# Enter build directory
+cd build
+
+# Create a folder for the artifacts
+mkdir artifacts
+
+# If windows move win dependencies
+# If *Min* (Assume MINGW32_NT) (windows)
+[[ `uname -s` == *"Min"* ]] && mv ../deps/win32/* artifacts/
+
+# Copy Content folder
+mv Content artifacts/Content
+
+# Move binary
+
+# If Darwin (mac osx)
+[[ `uname -s` == "Darwin" ]] && mv Game.app artifacts/
+
+# If *Min* (assume windows)
+[[ `uname -s` == *"Min"* ]] && mv Game.exe artifacts/
+
+# If *Linux* (any flavor)
+[[ `uname -s` == *"Linux"* ]] && mv Game artifacts/
+
+# Compress artifacts into a zip for distribution
+7z a Game.zip artifacts/*
+
+# If passed "validate" argument then display zip contents
+[[ $PARAM == "validate" ]] && 7z l Game.zip
