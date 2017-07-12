@@ -34,7 +34,8 @@ function Wanok(){
 //  PATHS
 // -------------------------------------------------------
 
-Wanok.PATH_BR = "";
+Wanok.PATH_ROOT = $ROOT_DIRECTORY;
+Wanok.PATH_BR = $ROOT_DIRECTORY + "Content/BR/";
 Wanok.PATH_DATAS = $ROOT_DIRECTORY + "Content/Datas/";
 Wanok.FILE_MAPS = Wanok.PATH_DATAS + "Maps/";
 Wanok.FILE_MAP_INFOS = "/infos.json";
