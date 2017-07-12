@@ -1,0 +1,21 @@
+#!/bin/bash
+
+echo "------------------------------------------------------------------------------"
+echo "T1 - Ensure when release successfully created that we get back the release_id"
+echo "------------------------------------------------------------------------------"
+
+JQ_EXPRESSION="if has(\"id\") then .id else .errors[0].code end"
+TEST1="jq -r '$JQ_EXPRESSION' create/release_created.json"
+[[ `eval $TEST1` == 7046440 ]] && echo "T1 Passed" || echo "T1 Failed"
+
+echo "------------------------------------------------------------------------------"
+
+echo "------------------------------------------------------------------------------"
+echo "T2 - Ensure when release already exists that we detect the error"
+echo "------------------------------------------------------------------------------"
+
+JQ_EXPRESSION="if has(\"id\") then .id else .errors[0].code end"
+TEST1="jq -r '$JQ_EXPRESSION' create/release_exists_error.json"
+[[ `eval $TEST1` == "already_exists" ]] && echo "T2 Passed" || echo "T2 Failed"
+
+echo "------------------------------------------------------------------------------"

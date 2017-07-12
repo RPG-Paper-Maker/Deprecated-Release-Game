@@ -1,21 +1,20 @@
+os: Visual Studio 2015
+
 environment:
-  matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      PROJECT: Game
-      PROJECT_DETAILS: "Game Runner"
+  ARTIFACT_FILE: "Win32.zip"
+  API_KEY:
+    secure: v6JrKQugn27sQ0NHckc3aeRKzFGQLEHctCM0w9QJllpFTKXcENliVVEyuYi7rGJv
+
+branches:
+  only:
+    - /^v.*$/
+
+build: off
 
 install:
-  - set QTDIR=C:\Qt\5.9\mingw53_32
-  - set PATH=%PATH%;%QTDIR%\bin;C:\MinGW\bin
-  - cd src
-  - mkdir artifacts
-  - mv Dependencies/win32/* artifacts/
-  - mv Content artifacts/Content
-  - touch "artifacts/RPG Paper Maker.exe"
-  - cd artifacts
-  - dir
-  - cd ..
-  - 7z a %PROJECT%.zip artifacts/*
-  - 7z l %PROJECT%.zip
-
-build: false
+  - chocolatey install wget
+  - chocolatey install jq
+  - C:\cygwin\bin\bash "bin/copy"
+  - C:\cygwin\bin\bash "bin/build"
+  - C:\cygwin\bin\bash "bin/preflight" "validate"
+  - C:\cygwin\bin\bash "bin/release"

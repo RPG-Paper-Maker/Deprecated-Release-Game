@@ -1,0 +1,38 @@
+#!/bin/bash
+
+echo "------------------------------------------------------------------------------"
+echo "T1 - Ensure gets one release id when endpoint has multiple release matches"
+echo "------------------------------------------------------------------------------"
+
+JQ_MATCH=".tag_name == \"v0.0.1\""
+JQ_FILTER='.[0] .id'
+JQ_MAP_FN="select($JQ_MATCH)"
+TEST1="jq -r 'map($JQ_MAP_FN) | $JQ_FILTER' list/multiple_same_tag_name.json"
+[[ `eval $TEST1` == 7046569 ]] && echo "T1 Passed" || echo "T1 Failed"
+
+echo "------------------------------------------------------------------------------"
+
+echo "------------------------------------------------------------------------------"
+echo "T2 - Ensure works when finding releases and endpoint is empty array"
+echo "------------------------------------------------------------------------------"
+
+JQ_MATCH=".tag_name == \"v0.0.1\""
+JQ_FILTER="if length>0 then .[0] .id else \"\" end"
+JQ_MAP_FN="select($JQ_MATCH)"
+TEST1="jq -r 'map($JQ_MAP_FN) | $JQ_FILTER' list/no_releases.json"
+[[ `eval $TEST1` == "" ]] && echo "T2 Passed" || echo "T2 Failed"
+
+echo "------------------------------------------------------------------------------"
+
+echo "------------------------------------------------------------------------------"
+echo "T3 - Ensure gets one release id when endpoint has only one release"
+echo "------------------------------------------------------------------------------"
+
+JQ_MATCH=".tag_name == \"v0.0.1\""
+JQ_FILTER="if length>0 then .[0] .id else \"\" end"
+JQ_MAP_FN="select($JQ_MATCH)"
+TEST1="jq -r 'map($JQ_MAP_FN) | $JQ_FILTER' list/has_releases.json"
+[[ `eval $TEST1` == "7047083" ]] && echo "T2 Passed" || echo "T2 Failed"
+
+echo "------------------------------------------------------------------------------"
+

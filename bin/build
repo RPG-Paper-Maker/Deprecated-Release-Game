@@ -6,6 +6,10 @@ PARAM="run"
 # Disable run if argument not provided
 [ -z "$1" ] && PARAM=""
 
+# If Mingw (windows) assume (appveyor) qt locations
+[[ `uname -s` == *"M"* ]] && export QTDIR="/cygdrive/c/Qt/5.9/mingw53_32"
+[[ `uname -s` == *"M"* ]] && export PATH="$PATH:$QTDIR/bin:/cygdrive/c/MinGW/bin"
+
 # Enter the build directory
 cd build
 
@@ -13,23 +17,25 @@ cd build
 qmake ../src/Game.pro
 
 # Make the project
-make
-
-# Clean intermediate make related files
-rm *.o *.cpp Makefile
+if [[ `uname -s` == *"M"* ]]; then 
+  mingw32-make >> log.txt && cat log.txt
+elif [[ `uname -s` == "Darwin" ]]; then
+  make
+else
+  make
+fi
 
 # Should run binary after compile with optional arguments?
 
 # Get all optional arguments after first argument
 # "run" and pass them to the binary that was created
 
-# If Darwin (mac osx)
-[[ $PARAM == "run" ]] && [[ `uname -s` == "Darwin" ]] &&
-  open "./Game.app" --args "${@:2}" && exit
-
-# If *Min* (Assume MINGW32_NT) (windows)
-[[ $PARAM == "run" ]] && [[ `uname -s` == *"Min"* ]] &&
-  echo "Not implemented" && exit
-
-# Otherwise assume linux
-[[ $PARAM == "run" ]] && ./Game "${@:2}" && exit
+if [[ $PARAM == "run" ]]; then
+  if [[ `uname -s` == *"M"* ]]; then 
+    echo "Not Implemented"
+  elif [[ `uname -s` == "Darwin" ]]; then
+    open "./Game.app" --args "${@:2}"
+  else
+    ./Game "${@:2}"
+  fi
+fi

@@ -1,37 +1,129 @@
 #!/bin/bash
 
-# Set validate enabled
-PARAM="validate"
+USER_REPO="afaur/RPG-Paper-Game"
+TITLE="RPG Paper Game"
+DETAILS="RPG Paper Game Runner"
 
-# Disable validate if argument not provided
-[ -z "$1" ] && PARAM=""
+function set_variables() {
+  # Make CI environment variables unified
+  if [[ `uname -s` == *"M"* ]]; then
+    BUILD_TAG="$APPVEYOR_REPO_TAG_NAME"
+    BUILD_COMMIT="$APPVEYOR_REPO_COMMIT"
+  else
+    BUILD_TAG="$TRAVIS_TAG"
+    BUILD_COMMIT="$TRAVIS_COMMIT"
+  fi
 
-# Enter build directory
-cd build
+  # Set Github URLs
+  GITHUB_API_URL="https://api.github.com"
+  GITHUB_UPLOADS_URL="https://uploads.github.com"
 
-# Create a folder for the artifacts
-mkdir artifacts
+  # Set endpoints
+  RELEASES_ENDPOINT="$GITHUB_API_URL/repos/$USER_REPO/releases"
+  UPLOADS_ENDPOINT="$GITHUB_UPLOADS_URL/repos/$USER_REPO/releases"
 
-# If windows move win dependencies
-# If *Min* (Assume MINGW32_NT) (windows)
-[[ `uname -s` == *"Min"* ]] && mv ../deps/win32/* artifacts/
+  # Create curl headers
+  make_headers
 
-# Copy Content folder
-mv Content artifacts/Content
+  # Default flags for commands
+  CURL="curl -s"
+  JQ="jq -j"
+}
 
-# Move binary
+# Make one variable for appending headers to curl
+function make_headers() {
+  AUTH_HEADER="Authorization: token $API_KEY"
+  ACCEPT_HEADER="Accept: application/vnd.github.v3+json"
+  CONTENT_HEADER="Content-Type: application/json"
+  HEADERS="-H '$AUTH_HEADER' -H '$ACCEPT_HEADER' -H '$CONTENT_HEADER'"
+}
 
-# If Darwin (mac osx)
-[[ `uname -s` == "Darwin" ]] && mv Game.app artifacts/
+# Takes a tag_name and returns release_id
+function get_release_id() {
+  JQ_MATCH=".tag_name == \"$BUILD_TAG\""
+  JQ_FILTER=".[0].id // empty"
+  JQ_MAP_FN="select($JQ_MATCH)"
 
-# If *Min* (assume windows)
-[[ `uname -s` == *"Min"* ]] && mv Game.exe artifacts/
+  JQ_CMD="$JQ 'map($JQ_MAP_FN) | $JQ_FILTER'"
+  CURL_CMD="$CURL $HEADERS $RELEASES_ENDPOINT"
 
-# If *Linux* (any flavor)
-[[ `uname -s` == *"Linux"* ]] && mv Game artifacts/
+  CMD="$CURL_CMD | $JQ_CMD"
 
-# Compress artifacts into a zip for distribution
-7z a Game.zip artifacts/*
+  RELEASE_ID=`eval $CMD`
 
-# If passed "validate" argument then display zip contents
-[[ $PARAM == "validate" ]] && 7z l Game.zip
+  if [[ $RELEASE_ID == "" ]]; then
+    echo "FOUND NO RELEASES WITH TAG_NAME: $BUILD_TAG"
+    echo "CREATING A RELEASE..."
+    create_release
+
+    # If release exists got get the existing release
+    if [[ $RELEASE_ID == "" ]]; then
+      echo "FOUND RELEASE WITH TAG_NAME: $BUILD_TAG"
+      echo "OBTAINING RELEASE ID..."
+      get_release_id
+    else
+      attach_asset
+    fi
+  else
+    attach_asset
+  fi
+}
+
+function create_release() {
+  # Create post data for release creation
+  create_release_payload
+
+  JQ_CMD="$JQ '.id // empty'"
+  CURL_CMD="$CURL $HEADERS $RELEASES_ENDPOINT $RELEASE_PAYLOAD"
+
+  CMD="$CURL_CMD | $JQ_CMD"
+
+  # Check for release
+  RELEASE_ID=`eval $CMD`
+
+  # Remove file with release creation post data
+  remove_release_payload
+}
+
+function attach_asset() {
+  echo "FOUND RELEASE WITH TAG_NAME: $BUILD_TAG"
+  echo "ATTACHING ASSET: $ARTIFACT_FILE..."
+
+  BASE_URL="$UPLOADS_ENDPOINT/$RELEASE_ID"
+  ASSET_NAME_PARAM="assets?name=$ARTIFACT_FILE"
+  ADD_FILE_URL="$BASE_URL/$ASSET_NAME_PARAM"
+
+  CURL_CMD="$CURL $HEADERS --data-binary '@build/$ARTIFACT_FILE' $ADD_FILE_URL"
+
+  RESULT=`eval $CURL_CMD`
+}
+
+function create_release_payload() {
+  # Post data to create a release
+  TAG="\"tag_name\":\"$BUILD_TAG\""
+  SHA="\"target_commitish\":\"$BUILD_COMMIT\""
+  RELEASE="\"name\":\"$TITLE $BUILD_TAG\""
+  DESCRIPTION="\"body\":\"$DETAILS\""
+  DRAFT="\"draft\":false"
+  PRERELEASE="\"prerelease\":true"
+
+  # Write data to file to make it easier to send to curl
+  DATA="{$TAG,$SHA,$RELEASE,$DESCRIPTION,$DRAFT,$PRERELEASE}"
+
+  echo $DATA > TMP_PAYLOAD.json
+
+  RELEASE_PAYLOAD="--data @TMP_PAYLOAD.json"
+}
+
+function remove_release_payload() {
+  rm TMP_PAYLOAD.json
+}
+
+# Get latest tags
+git fetch --tags
+
+# Set variables
+set_variables
+
+# Should we create a new release?
+get_release_id

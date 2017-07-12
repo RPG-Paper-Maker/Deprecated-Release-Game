@@ -1,0 +1,50 @@
+language: cpp
+
+notifications:
+  email: false
+
+branches:
+  only:
+  - /^v.*$/
+
+osx_image: xcode8.3
+
+matrix:
+  include:
+    - os: osx
+      sudo: false
+      compiler: clang
+      env:
+      - ARTIFACT_TYPE="OSX"
+      - ARTIFACT_FILE="OSX.tar.gz"
+      - QT_SELECT=qt5
+    - os: linux
+      dist: trusty
+      sudo: false
+      compiler: gcc
+      env:
+      - ARTIFACT_TYPE="Linux"
+      - ARTIFACT_FILE="Linux.tar.gz"
+      - QT_SELECT=qt5
+      addons:
+        apt:
+          sources:
+            - sourceline: "ppa:beineri/opt-qt59-trusty"
+          packages:
+            - "qt59base"
+            - "qt59declarative"
+            - jq
+
+before_install:
+  - if [[ "$ARTIFACT_TYPE" == "OSX" ]]; then brew update; fi
+  - if [[ "$ARTIFACT_TYPE" == "OSX" ]]; then brew install qt5 swift jq; fi
+
+install:
+  - if [[ "$ARTIFACT_TYPE" == "OSX" ]]; then brew link --force qt5; fi
+  - if [[ "$ARTIFACT_TYPE" == "Linux" ]]; then . /opt/qt59/bin/qt59-env.sh; fi
+
+script:
+  - ./bin/build
+  - ./bin/copy
+  - ./bin/preflight
+  - ./bin/release

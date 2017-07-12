@@ -1,0 +1,39 @@
+{
+  "url": "https://api.github.com/repos/afaur/RPG-Paper-Game/releases/7046440",
+  "assets_url": "https://api.github.com/repos/afaur/RPG-Paper-Game/releases/7046440/assets",
+  "upload_url": "https://uploads.github.com/repos/afaur/RPG-Paper-Game/releases/7046440/assets{?name,label}",
+  "html_url": "https://github.com/afaur/RPG-Paper-Game/releases/tag/v0.0.1",
+  "id": 7046440,
+  "tag_name": "v0.0.1",
+  "target_commitish": "55fffd95918fa1a22fbc28fca784c71646fc9810",
+  "name": "RPG Paper Game v0.0.1",
+  "draft": false,
+  "author": {
+    "login": "afaur",
+    "id": 898523,
+    "avatar_url": "https://avatars5.githubusercontent.com/u/898523?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/afaur",
+    "html_url": "https://github.com/afaur",
+    "followers_url": "https://api.github.com/users/afaur/followers",
+    "following_url": "https://api.github.com/users/afaur/following{/other_user}",
+    "gists_url": "https://api.github.com/users/afaur/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/afaur/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/afaur/subscriptions",
+    "organizations_url": "https://api.github.com/users/afaur/orgs",
+    "repos_url": "https://api.github.com/users/afaur/repos",
+    "events_url": "https://api.github.com/users/afaur/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/afaur/received_events",
+    "type": "User",
+    "site_admin": false
+  },
+  "prerelease": true,
+  "created_at": "2017-07-14T06:35:34Z",
+  "published_at": "2017-07-14T16:41:21Z",
+  "assets": [
+
+  ],
+  "tarball_url": "https://api.github.com/repos/afaur/RPG-Paper-Game/tarball/v0.0.1",
+  "zipball_url": "https://api.github.com/repos/afaur/RPG-Paper-Game/zipball/v0.0.1",
+  "body": "RPG Paper Game Runner"
+}

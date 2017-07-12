@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Set validate enabled
+PARAM="validate"
+
+# Disable validate if argument not provided
+[ -z "$1" ] && PARAM=""
+
+# Enter build directory
+cd build
+
+# Create a folder for the artifacts
+mkdir artifacts
+
+# If windows move win dependencies
+# If *M* (Assume MING or MSYS) (windows)
+[[ `uname -s` == *"M"* ]] && mv ../deps/win32/* artifacts/
+
+# Copy Content folder
+mv Content artifacts/Content
+
+# Move binary
+
+# If Darwin (mac osx)
+[[ `uname -s` == "Darwin" ]] && mv Game.app artifacts/
+
+# If *M* (assume windows)
+[[ `uname -s` == *"M"* ]] && mv release/Game.exe artifacts/
+
+# If *Linux* (any flavor)
+[[ `uname -s` == *"Linux"* ]] && mv Game artifacts/
+
+# Compress artifacts into a zip for distribution
+[[ `uname -s` == *"M"* ]] && 7z a "$ARTIFACT_FILE" ./artifacts/*
+[[ `uname -s` == *"Linux"* ]] && tar -czvf "$ARTIFACT_FILE" -C artifacts .
+[[ `uname -s` == "Darwin" ]] && tar -czvf "$ARTIFACT_FILE" -C artifacts .
+
+# If passed "validate" argument then display zip contents
+
+if [[ $PARAM == "validate" ]]; then
+  if [[ `uname -s` == *"M"* ]]; then 
+    7z l "$ARTIFACT_FILE"
+  elif [[ `uname -s` == "Darwin" ]]; then
+    tar -tvfz "$ARTIFACT_FILE"
+  else
+    tar -tvfz "$ARTIFACT_FILE"
+  fi
+fi

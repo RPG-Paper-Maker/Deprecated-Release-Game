@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# Copy Content directory
+cp -R src/Content build/Content
