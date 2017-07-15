@@ -1,6 +1,6 @@
 #!/bin/bash
 
-USER_REPO="afaur/RPG-Paper-Game"
+USER_REPO="RPG-Paper/RPG-Paper-Game"
 TITLE="RPG Paper Game"
 DETAILS="RPG Paper Game Runner"
 

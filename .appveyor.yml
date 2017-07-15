@@ -3,7 +3,7 @@ os: Visual Studio 2015
 environment:
   ARTIFACT_FILE: "Win32.zip"
   API_KEY:
-    secure: v6JrKQugn27sQ0NHckc3aeRKzFGQLEHctCM0w9QJllpFTKXcENliVVEyuYi7rGJv
+    secure: oCRAOcipgzMe9tum/tZx7vXbV1k/5Q9sD/pbcmlGbDbHCPkkPnswxYRq0cAhNF19
 
 branches:
   only:
