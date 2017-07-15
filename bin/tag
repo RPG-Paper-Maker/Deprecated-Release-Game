@@ -1,0 +1,33 @@
+#!/bin/bash
+
+BANNER="---------------------------------------------------"
+HOW_TO_USE="make release [GIT_REMOTE] [SEMVER] [TAG_DESC]"
+EXAMPLE_USAGE="make release origin v0.0.1"
+
+# If no argument 1, 2, and 3
+[[ ! -n $1 ]] || \
+  [[ ! -n $2 ]] || \
+  [[ ! -n $3 ]] && \
+  echo $BANNER && \
+  echo $HOW_TO_USE && \
+  echo $EXAMPLE_USAGE && \
+  echo $BANNER && \
+  exit 1
+
+# Fetch latest tags from remote
+git fetch $1
+
+# If tag already exists locally
+# remove it locally and on remote
+for tag in `git tag`; do
+  [[ $2 == $tag ]] && \
+    git tag -d $2 && \
+    git push $1 :refs/tags/$2
+done
+
+# Create a tag with description
+git tag -s $2 -m '$3'
+
+# Push new tag to remote
+git push $1 $2
+
